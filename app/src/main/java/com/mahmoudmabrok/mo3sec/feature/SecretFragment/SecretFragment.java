@@ -2,6 +2,7 @@ package com.mahmoudmabrok.mo3sec.feature.SecretFragment;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -45,7 +46,7 @@ public class SecretFragment extends Fragment {
     @BindView(R.id.edKey)
     EditText edKey;
     @BindView(R.id.editText)
-    EditText edPlainText;
+    EditText edInput;
     @BindView(R.id.editText2)
     EditText edCipherText;
     Unbinder unbinder;
@@ -54,7 +55,7 @@ public class SecretFragment extends Fragment {
     @BindView(R.id.btnDecrypt)
     Button btnDecrypt;
     Toast toast;
-    String plainText, cipherText, key;
+    String inputText, cipherText, key;
 
     public SecretFragment() {
         // Required empty public constructor
@@ -75,7 +76,7 @@ public class SecretFragment extends Fragment {
     }
 
     private void initTextWatcher() {
-        edPlainText.addTextChangedListener(new TextWatcher() {
+        edInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -90,31 +91,16 @@ public class SecretFragment extends Fragment {
             public void afterTextChanged(Editable editable) {
                 if (editable.length() > 0) {
                     btnEncrypt.setVisibility(View.VISIBLE);
+                    btnDecrypt.setVisibility(View.VISIBLE);
+
+                    cofigurResultEdit(false);
                 } else {
                     btnEncrypt.setVisibility(View.GONE);
-                }
-            }
-        });
-        edCipherText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (editable.length() > 0) {
-                    btnDecrypt.setVisibility(View.VISIBLE);
-                } else {
                     btnDecrypt.setVisibility(View.GONE);
                 }
             }
         });
+
     }
 
     private void initSpinner() {
@@ -131,6 +117,7 @@ public class SecretFragment extends Fragment {
                 } else {
                     edKey.setText("");
                 }
+                cofigurResultEdit(false);
             }
 
             @Override
@@ -147,10 +134,10 @@ public class SecretFragment extends Fragment {
     }
 
     private void encryptData() {
-        plainText = edPlainText.getText().toString();
+        inputText = edInput.getText().toString();
         String algoName = (String) spAlgo.getSelectedItem();
         key = edKey.getText().toString();
-        if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(plainText)) {
+        if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(inputText)) {
             switch (algoName) {
                 case Constants.Ceaser:
                     encryptDataCipher();
@@ -182,12 +169,12 @@ public class SecretFragment extends Fragment {
 
     private void encryptDataOTP() {
         OneTimePad oneTimePad = new OneTimePad();
-        if (isAllAlpha(plainText)) {
-            String encrpted = oneTimePad.cipher(plainText);
-            edCipherText.setText(encrpted);
+        if (isAllAlpha(inputText)) {
+            String encrpted = oneTimePad.cipher(inputText);
+            setResultInView(encrpted);
             String keyOTP = oneTimePad.getKey();
             edKey.setText(keyOTP);
-            showMessage("Key is  grenated Random and added to Key Field");
+            //   showMessage("Key is  grenated Random and added to Key Field");
             showEncrptMsg();
         } else {
             showAlphaError();
@@ -200,6 +187,7 @@ public class SecretFragment extends Fragment {
 
     private void showAlphaError() {
         showMessage("text must consists only from  alphabatic");
+        cofigurResultEdit(false);
     }
 
     private void encryptDataTap() {
@@ -211,30 +199,38 @@ public class SecretFragment extends Fragment {
     private void encryptDataRail() {
         try {
             int keyValue = Integer.parseInt(key);
-            RailFence railFence = new RailFence();
-            String encrypted = railFence.cipher(plainText, keyValue);
-            edCipherText.setText(encrypted);
-            // edPlainText.setText("");
-            showEncrptMsg();
+            int textLength = inputText.length();
+            if (keyValue < textLength) {
+                RailFence railFence = new RailFence();
+                String encrypted = railFence.cipher(inputText, keyValue);
+                setResultInView(encrypted);
+                showEncrptMsg();
+            } else {
+                showKeyMustBeLowerLength(textLength - 1);
+
+            }
 
         } catch (NumberFormatException e) {
-            showMessage("Not Valid Key");
+            showMessage("Key must be number");
         }
     }
 
     private void encryptDataPlayFair() {
         if (isAllAlpha(key)) {
             PlayFair playFair = new PlayFair(key);
-            String encrypted = playFair.cipherText(plainText);
-            edCipherText.setText(encrypted);
-            // edPlainText.setText("");
-            showEncrptMsg();
+            if (isAllAlpha(inputText)) {
+                String encrypted = playFair.cipherText(inputText);
+                setResultInView(encrypted);
+                showEncrptMsg();
+            } else {
+                showAlphaError();
+            }
         } else {
             showMessage("Key must be text");
         }
     }
 
-    private boolean isAllAlpha(String key) {
+    private boolean isAllAlpha(@NonNull String key) {
         boolean state = true;
         key = key.toLowerCase();
         int min = (int) 'a';
@@ -254,10 +250,10 @@ public class SecretFragment extends Fragment {
     private void encryptDataCipher() {
         try {
             int keyValue = Integer.parseInt(key);
-            if (isAllAlpha(plainText)) {
+            if (isAllAlpha(inputText)) {
                 Ceaser ceaser = new Ceaser(keyValue);
-                String encrypted = ceaser.ceaserText(plainText);
-                edCipherText.setText(encrypted);
+                String encrypted = ceaser.ceaserText(inputText);
+                setResultInView(encrypted);
                 showEncrptMsg();
             } else {
                 showMessage("plain must be alphabet only");
@@ -272,7 +268,7 @@ public class SecretFragment extends Fragment {
         String algoName = (String) spAlgo.getSelectedItem();
         key = edKey.getText().toString();
         if (!TextUtils.isEmpty(key)) {
-            cipherText = edCipherText.getText().toString();
+            inputText = edInput.getText().toString();
             switch (algoName) {
                 case Constants.Ceaser:
                     decyrptCeaser();
@@ -292,48 +288,68 @@ public class SecretFragment extends Fragment {
             }
         } else {
             showKeyEmpty();
+
         }
 
     }
 
     private void decyrptOTP() {
         if (isAllAlpha(key)) {
-            if (key.length() == cipherText.length()) {
+            if (key.length() == inputText.length()) {
                 OneTimePad oneTimePad = new OneTimePad();
-                String plain = oneTimePad.deCipher(cipherText, key);
-                edPlainText.setText(plain);
+                String plain = oneTimePad.deCipher(inputText, key);
+                setResultInView(plain);
                 showDecrptMsg();
             } else {
-                showMessage("key and cipher must be same length");
+                showSameLength();
             }
         } else {
             showAlphaError();
         }
     }
 
+    private void showSameLength() {
+        showMessage("key and cipher must be same length");
+        cofigurResultEdit(false);
+    }
+
     private void showKeyEmpty() {
         showMessage("Enter Key");
+        cofigurResultEdit(false);
     }
 
     private void decyrptRailFence() {
         try {
             int keyValue = Integer.parseInt(key);
-            RailFence railFence = new RailFence();
-            String plain = railFence.deCipher(cipherText, keyValue);
-            edPlainText.setText(plain);
-            showDecrptMsg();
+            if (keyValue < inputText.length()) {
+                RailFence railFence = new RailFence();
+                String plain = railFence.deCipher(inputText, keyValue);
+                setResultInView(plain);
+                showDecrptMsg();
+            } else {
+                showKeyMustBeLowerLength(inputText.length() - 1);
+            }
         } catch (NumberFormatException e) {
             showMessage("Key must be number");
         }
     }
 
+    private void showKeyMustBeLowerLength(int level) {
+        showMessage("key must be lower than length ( 1 - " + level + ") ");
+        cofigurResultEdit(false);
+    }
+
     private void decyrptPlayFair() {
         if (isAllAlpha(key)) {
             PlayFair playFair = new PlayFair(key);
-            String plain = playFair.decipherText(cipherText);
-            edPlainText.setText(plain);
-            // edCipherText.setText("");
-            showDecrptMsg();
+
+            if (isAllAlpha(inputText)) {
+                String plain = playFair.decipherText(inputText);
+                setResultInView(plain);
+                showDecrptMsg();
+            } else {
+                showAlphaError();
+            }
         } else {
             showMessage("Key must be text");
         }
@@ -345,10 +361,10 @@ public class SecretFragment extends Fragment {
     private void decyrptCeaser() {
         try {
             int keyValue = Integer.parseInt(key);
-            if (isAllAlpha(cipherText)) {
+            if (isAllAlpha(inputText)) {
                 Ceaser ceaser = new Ceaser(keyValue);
-                String plain = ceaser.decrypt(cipherText);
-                edPlainText.setText(plain);
+                String plain = ceaser.decrypt(inputText);
+                setResultInView(plain);
                 showDecrptMsg();
             } else {
                 showAlphaError();
@@ -359,20 +375,23 @@ public class SecretFragment extends Fragment {
         }
     }
 
+    private void setResultInView(String plain) {
+        edCipherText.setText(plain);
+    }
+
     private void showDecrptMsg() {
         showMessage("Decrypted Successfully");
     }
 
     private void blankFields() {
         edKey.setText("");
-        edPlainText.setText("");
-        edCipherText.setText("");
+        edInput.setText("");
     }
 
     private void showMessage(String msg) {
-        toast.cancel();
+       /* toast.cancel();
         toast = Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
-        toast.show();
+        toast.show();*/
 
     }
 
@@ -386,6 +405,7 @@ public class SecretFragment extends Fragment {
      */
     @OnClick({R.id.btnEncrypt, R.id.btnDecrypt})
     public void onViewClicked(View view) {
+        cofigurResultEdit(true);
         switch (view.getId()) {
             case R.id.btnEncrypt:
                 encryptData();
@@ -400,5 +420,13 @@ public class SecretFragment extends Fragment {
     }
 
     private void hideKeport() {
+    }
+
+    public void cofigurResultEdit(boolean state) {
+        if (state) {
+            edCipherText.setVisibility(View.VISIBLE);
+        } else {
+            edCipherText.setVisibility(View.GONE);
+        }
     }
 }

@@ -71,22 +71,22 @@ public class PlayFair {
     }
 
     public String cipherText(String text) {
-        painText = text;
-        prepareText();
+        painText = prepareText(text);
         mapFromInputToMatrix();
         return cipherText;
     }
 
-    private void prepareText() {
-        painText = painText.replaceAll(" ", "");
-        painText = painText.toUpperCase();
-        painText = painText.replaceAll("J", "I");
-        checkDuplication();
-        checkPainText();
+    private String prepareText(String text) {
+        text = text.replaceAll(" ", "");
+        text = text.toUpperCase();
+        text = text.replaceAll("J", "I");
+        checkDuplication(text);
+        text = checkTextLength(text);
+        return text;
     }
 
-    private void checkDuplication() {
-        StringBuilder sb = new StringBuilder(painText);
+    private void checkDuplication(String text) {
+        StringBuilder sb = new StringBuilder(text);
         char temp;
         for (int i = 0; i < sb.length() - 1; i++) {
             temp = sb.charAt(i);
@@ -97,10 +97,12 @@ public class PlayFair {
         painText = sb.toString();
     }
 
-    private void checkPainText() {
-        if (painText.length() % 2 != 0) {
-            painText = painText + "X";
+    private String checkTextLength(String text) {
+        if (text.length() % 2 != 0) {
+            text = text + "X";
         }
+
+        return text;
     }
 
     private void mapFromInputToMatrix() {
@@ -161,8 +163,8 @@ public class PlayFair {
         return index;
     }
 
-    public String decipherText(String cipherText) {
-        this.cipherText = cipherText;
+    public String decipherText(String cipheredText) {
+        cipherText = prepareText(cipheredText);
         mapFromMatrixTextToInput();
         return painText;
     }

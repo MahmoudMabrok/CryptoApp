@@ -35,3 +35,4 @@ dependencies {
     compile files('libs/AppRate_1.1.jar')
 
 }
+
