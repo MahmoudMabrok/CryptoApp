@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import com.mahmoudmabrok.mo3sec.R;
 import com.mahmoudmabrok.mo3sec.feature.PublicFragment.PublicFragmet;
 import com.mahmoudmabrok.mo3sec.feature.SecretFragment.SecretFragment;
+import com.tjeannin.apprate.AppRate;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +46,13 @@ public class Home extends AppCompatActivity
         manager = getSupportFragmentManager();
 
         openSymmtric();
+
+        new AppRate(this)
+                .setMinDaysUntilPrompt(3)
+                .setMinLaunchesUntilPrompt(10)
+                .setShowIfAppHasCrashed(false)
+                .init();
+
     }
 
     @Override

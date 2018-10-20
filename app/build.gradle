@@ -32,5 +32,6 @@ dependencies {
         exclude module: 'support-compat'
     }
     annotationProcessor "com.jakewharton:butterknife-compiler:8.8.1"
+    compile files('libs/AppRate_1.1.jar')
 
 }

@@ -7,6 +7,7 @@ public class RailFence {
 
 
     public String cipher(String plain, int level) {
+        level = level % plain.length();
         plain = plain.replaceAll(" ", "");
         StringBuilder[] matrix = new StringBuilder[level];
         for (int i = 0; i < matrix.length; i++) {
@@ -26,6 +27,7 @@ public class RailFence {
 
     public String deCipher(String cipher, int level) {
         cipher = cipher.replaceAll(" ", "");
+        level = level % cipher.length();
         int segment = cipher.length() / level;
         char toAttach = ' ';
         if (cipher.length() % level != 0) {
@@ -34,7 +36,6 @@ public class RailFence {
             sb.replace(segment, segment + 1, "");
             cipher = sb.toString();
         }
-
 
         StringBuilder[] matrix = new StringBuilder[segment];
         for (int i = 0; i < segment; i++) {

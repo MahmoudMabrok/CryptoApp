@@ -14,4 +14,16 @@
 
 
     </group>
+    <item android:title="Addition">
+
+        <menu>
+            <item
+                android:id="@+id/action_crack"
+                android:title="Crack Encrption" />
+            <item
+                android:id="@+id/action_video"
+                android:title="Videos" />
+        </menu>
+
+    </item>
 </menu>
