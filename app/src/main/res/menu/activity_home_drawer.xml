@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
-
-    <item
-        android:id="@+id/action_home"
-        android:title="Home" />
+    <!--
+        <item
+            android:id="@+id/action_home"
+            android:title="Home" />-->
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_symmetric"
@@ -17,7 +17,7 @@
 
 
     </group>
-    <item android:title="Addition">
+    <!--<item android:title="Addition">
 
         <menu>
             <item
@@ -28,5 +28,5 @@
                 android:title="Videos" />
         </menu>
 
-    </item>
+    </item>-->
 </menu>

@@ -8,10 +8,10 @@ import java.util.Arrays;
  */
 public interface Constants {
 
-    String Ceaser = "CeaserCipher";
-    String PlayFair = "PlayFair";
+    String Ceaser = "Ceaser Cipher";
+    String PlayFair = "Play Fair";
     String DES = "DES";
-    String RailFence = "RailFence";
+    String RailFence = "Rail Fence";
     String Tap = "Tap Phone Cipher";
     String OTP = "One Time Pad";
 

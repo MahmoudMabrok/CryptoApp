@@ -135,6 +135,7 @@ public class SecretFragment extends Fragment {
 
     private void encryptData() {
         inputText = edInput.getText().toString();
+        inputText = inputText.replaceAll(" ", "");
         String algoName = (String) spAlgo.getSelectedItem();
         key = edKey.getText().toString();
         if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(inputText)) {
@@ -211,13 +212,21 @@ public class SecretFragment extends Fragment {
             }
 
         } catch (NumberFormatException e) {
-            showMessage("Key must be number");
+            showKeyMustNum();
         }
     }
 
+    private void showKeyMustNum() {
+        showMessage("Key must be number");
+        cofigurResultEdit(false);
+    }
+
+    //// TODO: 10/29/2018 handle spaces
     private void encryptDataPlayFair() {
         if (isAllAlpha(key)) {
             PlayFair playFair = new PlayFair(key);
+            //// TODO: 10/29/2018
+            //inputText= inputText.replaceAll(" " , "");
             if (isAllAlpha(inputText)) {
                 String encrypted = playFair.cipherText(inputText);
                 setResultInView(encrypted);
@@ -238,6 +247,8 @@ public class SecretFragment extends Fragment {
         int value;
 
         for (char c : key.toCharArray()) {
+            if (c == ' ')
+                continue;
             value = (int) c;
             if (Character.isDigit(c) || !(value >= min && value <= max)) {
                 state = false;
@@ -259,7 +270,7 @@ public class SecretFragment extends Fragment {
                 showMessage("plain must be alphabet only");
             }
         } catch (NumberFormatException e) {
-            showMessage("Key must be num");
+            showKeyMustNum();
         }
     }
 
@@ -330,7 +341,7 @@ public class SecretFragment extends Fragment {
                 showKeyMustBeLowerLength(inputText.length() - 1);
             }
         } catch (NumberFormatException e) {
-            showMessage("Key must be number");
+            showKeyMustNum();
         }
     }
 
@@ -345,13 +356,17 @@ public class SecretFragment extends Fragment {
 
             if (isAllAlpha(inputText)) {
                 String plain = playFair.decipherText(inputText);
+                if (plain == null) {
+                    showMessage("Not Valid text");
+                    return;
+                }
                 setResultInView(plain);
                 showDecrptMsg();
             } else {
                 showAlphaError();
             }
         } else {
-            showMessage("Key must be text");
+            showAlphaError();
         }
     }
 
@@ -362,6 +377,7 @@ public class SecretFragment extends Fragment {
         try {
             int keyValue = Integer.parseInt(key);
             if (isAllAlpha(inputText)) {
+                keyValue %= 26;
                 Ceaser ceaser = new Ceaser(keyValue);
                 String plain = ceaser.decrypt(inputText);
                 setResultInView(plain);
@@ -371,7 +387,7 @@ public class SecretFragment extends Fragment {
             }
 
         } catch (NumberFormatException e) {
-            showMessage("Key must be number");
+            showKeyMustNum();
         }
     }
 
@@ -392,6 +408,7 @@ public class SecretFragment extends Fragment {
        /* toast.cancel();
         toast = Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT);
         toast.show();*/
+        Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
 
     }
 
@@ -428,5 +445,15 @@ public class SecretFragment extends Fragment {
         } else {
             edCipherText.setVisibility(View.GONE);
         }
+    }
+
+    public void CopyIt(View view) {
+        edInput.setText(((EditText) view).getText().toString());
+    }
+
+    @OnClick(R.id.editText2)
+    public void onViewClicked() {
+        String s = edCipherText.getText().toString();
+        edInput.setText(s);
     }
 }

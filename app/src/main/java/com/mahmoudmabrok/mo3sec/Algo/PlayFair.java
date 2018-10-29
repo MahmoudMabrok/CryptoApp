@@ -145,6 +145,7 @@ public class PlayFair {
                     sb.append(temp);
                     break;
             }
+            sb.append(" ");
         }
 
         cipherText = sb.toString();
@@ -165,7 +166,10 @@ public class PlayFair {
 
     public String decipherText(String cipheredText) {
         cipherText = prepareText(cipheredText);
-        mapFromMatrixTextToInput();
+        if (cipherText.length() % 2 == 0)
+            mapFromMatrixTextToInput();
+        else
+            return null;
         return painText;
     }
 

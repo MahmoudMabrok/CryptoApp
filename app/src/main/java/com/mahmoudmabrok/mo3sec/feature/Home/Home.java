@@ -71,21 +71,22 @@ public class Home extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         switch (id) {
-            case R.id.action_home:
+           /* case R.id.action_home:
                 openHome();
                 break;
+           */
             case R.id.nav_symmetric:
                 openSymmtric();
                 break;
          /*   case R.id.nav_asymmetric:
                 openAsymmetric();
                 break;*/
-            case R.id.action_video:
+          /*  case R.id.action_video:
                 openVideos();
                 break;
             case R.id.action_crack:
                 openCrack();
-                break;
+                break;*/
 
         }
 
