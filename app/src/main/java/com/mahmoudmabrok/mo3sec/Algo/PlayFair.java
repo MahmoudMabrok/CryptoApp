@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class PlayFair {
 
     private String key;
-    private String painText;
+    private String plainText;
     private String cipherText;
 
     private char[][] matrix = new char[5][5];
@@ -21,12 +21,10 @@ public class PlayFair {
         makeMatirix();
     }
 
-    private void makeMatirix() {
-        replaceIJInKey();
-        removeDuplicateInKey();
-        addToMatrix();
-    }
 
+    /**
+     * make alpha set by removing J from it
+     */
     private void initAlpha() {
         int start = (int) 'A';
         int end = (int) 'Z';
@@ -38,10 +36,30 @@ public class PlayFair {
         alphSet.remove(new Character('J'));
     }
 
+
+    /**
+     * make matrix
+     * first replace each j with i in alpha set
+     * second removes duplicates
+     * third construct matrix
+     */
+    private void makeMatirix() {
+        replaceIJInKey();
+        removeDuplicateInKey();
+        addToMatrix();
+    }
+
+
+    /**
+     * replace each occurrence of J by I in the key
+     */
     private void replaceIJInKey() {
         key = key.replaceAll("J", "I");
     }
 
+    /**
+     * remove duplicate in key
+     */
     private void removeDuplicateInKey() {
         for (char c : key.toCharArray()) {
             if (alphSet.contains(c)) {
@@ -52,15 +70,15 @@ public class PlayFair {
         }
         //add key character to temp
         for (char c : key.toCharArray()) {
-            {
-                temp.add(c);
-            }
+            temp.add(c);
         }
         //add rest of aplhabet character
         temp.addAll(alphSet);
-
     }
 
+    /**
+     * construct matrix with set in temp 
+     */
     private void addToMatrix() {
         int index = 0;
         for (int i = 0; i < matrix.length; i++) {
@@ -71,11 +89,21 @@ public class PlayFair {
     }
 
     public String cipherText(String text) {
-        painText = prepareText(text);
+        plainText = prepareText(text);
         mapFromInputToMatrix();
         return cipherText;
     }
 
+    /**
+     * prepare text for ciphering/deciphering
+     * remove all spaces 
+     * replce j with i 
+     * check duplication 
+     * check length
+     *
+     * @param text
+     * @return prepared text  
+     */
     private String prepareText(String text) {
         text = text.replaceAll(" ", "");
         text = text.toUpperCase();
@@ -94,7 +122,7 @@ public class PlayFair {
                 sb.insert(i + 1, "X");
             }
         }
-        painText = sb.toString();
+        plainText = sb.toString();
     }
 
     private String checkTextLength(String text) {
@@ -105,11 +133,14 @@ public class PlayFair {
         return text;
     }
 
+    /**
+     * map text from input to matrix 
+     */
     private void mapFromInputToMatrix() {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < painText.length(); i += 2) {
-            char first = painText.charAt(i);
-            char second = painText.charAt(i + 1);
+        for (int i = 0; i < plainText.length(); i += 2) {
+            char first = plainText.charAt(i);
+            char second = plainText.charAt(i + 1);
 
             Index iFirst = getIndexObjFromMat(first);
             Index iSecond = getIndexObjFromMat(second);
@@ -170,9 +201,12 @@ public class PlayFair {
             mapFromMatrixTextToInput();
         else
             return null;
-        return painText;
+        return plainText;
     }
 
+    /**
+     * map from matrix (cipher) to plain 
+     */
     private void mapFromMatrixTextToInput() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < cipherText.length(); i += 2) {
@@ -215,7 +249,7 @@ public class PlayFair {
             }
         }
 
-        painText = sb.toString();
+        plainText = sb.toString();
 
     }
 

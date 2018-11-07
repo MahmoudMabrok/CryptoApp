@@ -14,16 +14,20 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mahmoudmabrok.mo3sec.Algo.Ceaser;
+import com.mahmoudmabrok.mo3sec.Algo.DES;
 import com.mahmoudmabrok.mo3sec.Algo.OneTimePad;
 import com.mahmoudmabrok.mo3sec.Algo.PlayFair;
 import com.mahmoudmabrok.mo3sec.Algo.RailFence;
+import com.mahmoudmabrok.mo3sec.Algo.Vignere;
 import com.mahmoudmabrok.mo3sec.R;
 import com.mahmoudmabrok.mo3sec.Util.Constants;
+import com.mahmoudmabrok.mo3sec.Util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +51,6 @@ public class SecretFragment extends Fragment {
     EditText edKey;
     @BindView(R.id.editText)
     EditText edInput;
-    @BindView(R.id.editText2)
-    EditText edCipherText;
     Unbinder unbinder;
     @BindView(R.id.btnEncrypt)
     Button btnEncrypt;
@@ -56,6 +58,13 @@ public class SecretFragment extends Fragment {
     Button btnDecrypt;
     Toast toast;
     String inputText, cipherText, key;
+    @BindView(R.id.tvResult)
+    TextView tvResult;
+    @BindView(R.id.btnShowInfo)
+    Button btnShowInfo;
+    @BindView(R.id.linearInfo)
+    LinearLayout linearInfo;
+    private String log;
 
     public SecretFragment() {
         // Required empty public constructor
@@ -69,9 +78,7 @@ public class SecretFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
         initSpinner();
         initTextWatcher();
-
         toast = Toast.makeText(getContext(), "", Toast.LENGTH_SHORT);
-
         return view;
     }
 
@@ -92,7 +99,6 @@ public class SecretFragment extends Fragment {
                 if (editable.length() > 0) {
                     btnEncrypt.setVisibility(View.VISIBLE);
                     btnDecrypt.setVisibility(View.VISIBLE);
-
                     cofigurResultEdit(false);
                 } else {
                     btnEncrypt.setVisibility(View.GONE);
@@ -149,16 +155,17 @@ public class SecretFragment extends Fragment {
                 case Constants.RailFence:
                     encryptDataRail();
                     break;
-
                 case Constants.DES:
                     encryptDataDES();
                     break;
-
                 case Constants.Tap:
                     encryptDataTap();
                     break;
                 case Constants.OTP:
                     encryptDataOTP();
+                    break;
+                case Constants.VIGNER:
+                    encryptDataVigner();
                     break;
             }
 
@@ -166,6 +173,21 @@ public class SecretFragment extends Fragment {
             showMessage("Please Enter data");
         }
 
+    }
+
+    private void encryptDataVigner() {
+        if (isAllAlpha(key)) {
+            if (isAllAlpha(inputText)) {
+                Vignere vignere = new Vignere(key, inputText);
+                String ciphered = vignere.cipher();
+                log = vignere.getLog();
+                setResultInView(ciphered);
+            } else {
+                showAlphaError();
+            }
+        } else {
+            showAlphaError();
+        }
     }
 
     private void encryptDataOTP() {
@@ -195,6 +217,18 @@ public class SecretFragment extends Fragment {
     }
 
     private void encryptDataDES() {
+        if (key.length() == 64) {
+            if (inputText.length() % 64 == 0) {
+                DES des = new DES(key);
+                String encrypted = des.cipher(inputText);
+                setResultInView(encrypted);
+                log = des.getLog();
+            } else {
+                showMessage("Input must be 64 multiples");
+            }
+        } else {
+            showMessage("keymust be 64 length");
+        }
     }
 
     private void encryptDataRail() {
@@ -264,10 +298,11 @@ public class SecretFragment extends Fragment {
             if (isAllAlpha(inputText)) {
                 Ceaser ceaser = new Ceaser(keyValue);
                 String encrypted = ceaser.ceaserText(inputText);
+                log = ceaser.getLog();
                 setResultInView(encrypted);
                 showEncrptMsg();
             } else {
-                showMessage("plain must be alphabet only");
+                showAlphaError();
             }
         } catch (NumberFormatException e) {
             showKeyMustNum();
@@ -296,12 +331,30 @@ public class SecretFragment extends Fragment {
                 case Constants.OTP:
                     decyrptOTP();
                     break;
+                case Constants.VIGNER:
+                    decyrptVigner();
+                    break;
             }
         } else {
             showKeyEmpty();
 
         }
 
+    }
+
+    private void decyrptVigner() {
+        if (isAllAlpha(key)) {
+            if (isAllAlpha(inputText)) {
+                Vignere vignere = new Vignere(key, inputText);
+                String plain = vignere.decipher();
+                log = vignere.getLog();
+                setResultInView(plain);
+            } else {
+                showAlphaError();
+            }
+        } else {
+            showAlphaError();
+        }
     }
 
     private void decyrptOTP() {
@@ -392,7 +445,7 @@ public class SecretFragment extends Fragment {
     }
 
     private void setResultInView(String plain) {
-        edCipherText.setText(plain);
+        tvResult.setText(plain);
     }
 
     private void showDecrptMsg() {
@@ -432,28 +485,35 @@ public class SecretFragment extends Fragment {
                 break;
         }
 
-        //// TODO: 10/18/2018
         hideKeport();
     }
 
     private void hideKeport() {
+        Util.hideInputKeyboard(getContext());
     }
 
     public void cofigurResultEdit(boolean state) {
         if (state) {
-            edCipherText.setVisibility(View.VISIBLE);
+            linearInfo.setVisibility(View.VISIBLE);
         } else {
-            edCipherText.setVisibility(View.GONE);
+            linearInfo.setVisibility(View.GONE);
         }
     }
 
-    public void CopyIt(View view) {
-        edInput.setText(((EditText) view).getText().toString());
+
+    @OnClick(R.id.tvResult)
+    public void onViewClicked1() {
+        String s = tvResult.getText().toString();
+        edInput.setText(s);
+        //  showMessage(s);
     }
 
-    @OnClick(R.id.editText2)
-    public void onViewClicked() {
-        String s = edCipherText.getText().toString();
-        edInput.setText(s);
+
+    @OnClick(R.id.btnShowInfo)
+    public void onViewClicked2() {
+        if (!TextUtils.isEmpty(log)) {
+            Util.getDialog(getContext(), log, "").show();
+            log = "";
+        }
     }
 }
