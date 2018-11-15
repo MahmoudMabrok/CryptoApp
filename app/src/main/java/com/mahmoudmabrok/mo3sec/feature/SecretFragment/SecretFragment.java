@@ -217,17 +217,14 @@ public class SecretFragment extends Fragment {
     }
 
     private void encryptDataDES() {
-        if (key.length() == 64) {
-            if (inputText.length() % 64 == 0) {
+        if (key.length() == 8) {
                 DES des = new DES(key);
-                String encrypted = des.cipher(inputText);
+            String encrypted = des.cipherMessage(inputText);
                 setResultInView(encrypted);
+            System.out.println("encrypted = {" + encrypted + "}");
                 log = des.getLog();
-            } else {
-                showMessage("Input must be 64 multiples");
-            }
         } else {
-            showMessage("keymust be 64 length");
+            showMessage("keymust be 8 character");
         }
     }
 
@@ -424,6 +421,15 @@ public class SecretFragment extends Fragment {
     }
 
     private void decyrptDES() {
+        if (key.length() == 8) {
+            DES des = new DES(key);
+            String encrypted = des.decipherMessage(inputText);
+            setResultInView(encrypted);
+            log = des.getLog();
+
+        } else {
+            showMessage("key must be 8 length");
+        }
     }
 
     private void decyrptCeaser() {

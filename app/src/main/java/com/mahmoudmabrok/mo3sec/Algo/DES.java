@@ -18,32 +18,11 @@ public class DES {
     String prevRight;
     StringBuilder logOutput;
 
-    public static void main(String[] args) {
-        String key = "0001001100110100010101110111100110011011101111001101111111110001";
-        key = key.replaceAll(" ", "");
-        System.out.println("original key = " + key.length() + " key :: " + key);
-        String plain = "0000000100100011010001010110011110001001101010111100110111101111";
-        plain = plain.replaceAll(" ", "");
-        System.out.println("plain = " + plain.length() + " plain ::" + plain);
-        DES des = new DES(key);
-        String i = des.cipher(plain);
-        System.out.println("cipher is  = " + i);
-        System.out.println("Detailed steps = " + des.getLog());
-        String i2 = des.decipher(i);
-        System.out.println("plain = " + i2);
-
-
-    }
-
     public DES(String key) {
-        this.key = key;
+        this.key = toBinary(key);
         logOutput = new StringBuilder();
         addToLogWithNewLine("DES");
-        try {
-            generateSubKeys();
-        } catch (Exception e) {
-            System.out.println("e = " + e.getMessage());
-        }
+
     }
 
     /**
@@ -53,6 +32,7 @@ public class DES {
      * 3 then permutated choice 2
      */
     private void generateSubKeys() {
+        subKeys = new ArrayList<>();
         if (key.length() == 64) {
             addToLog(key.length() + " bit key");
             addSpaces();
@@ -199,6 +179,110 @@ public class DES {
         }
 
     }
+
+    /**
+     * @param plain is normal english represented
+     *              * @return
+     */
+    public String cipherMessage(String plain) {
+        generateSubKeys();
+        StringBuilder builder = new StringBuilder();
+        String temp;
+        plain = toBinary(plain);
+
+        for (int i = 0; i < plain.length(); i += 64) {
+            temp = cipher(plain.substring(i, i + 64)); // is ciphered and output is 64bit
+            builder.append(fromBinaryToString(temp)); // it converted to noraml english character
+            //       System.out.println("stage " + fromBinaryToString(temp));
+        }
+
+        return builder.toString();
+    }
+
+
+    /**
+     * @param cipherText
+     * @return
+     */
+    public String decipherMessage(String cipherText) {
+        generateSubKeys();
+        StringBuilder builder = new StringBuilder();
+        String temp;
+        cipherText = toBinary(cipherText);
+        for (int i = 0; i < cipherText.length(); i += 64) {
+            temp = decipher(cipherText.substring(i, i + 64));
+            builder.append(fromBinaryToString(temp));
+            //     System.out.println("stage " + fromBinaryToString(temp));
+        }
+
+        return builder.toString();
+    }
+
+    /**
+     * not used
+     *
+     * @param cipher
+     */
+    private static void printBytes(String cipher) {
+        for (byte b : cipher.getBytes()) {
+            System.out.println("b = " + b);
+        }
+    }
+
+
+    /**
+     * inout is string --> set of character
+     *
+     * @param a
+     * @return
+     */
+    public static String toBinary(String a) {
+        System.out.println("a " + a + "  " + a.length());
+        String temp;
+        int t;
+        StringBuilder builder = new StringBuilder(a);
+
+        int mod = builder.toString().length() % 8;
+        System.out.println("mod = " + mod);
+        int iteration = mod == 0 ? 0 : (8 - mod);
+        System.out.println("iteration = " + iteration);
+        for (int i = 0; i < iteration; i++) {
+            builder.append(" ");
+        }
+        a = builder.toString();
+        builder = new StringBuilder();
+        for (int i = 0; i < a.length(); i++) {
+            t = (int) a.charAt(i);
+            temp = Integer.toBinaryString(t);
+         /*   System.out.println("char = " + a.charAt(i));
+            System.out.println("int value = " + t);
+            System.out.println("binary value = " + temp);*/
+
+            while (temp.length() < 8) {
+                temp = "0" + temp;
+            }
+            builder.append(temp);
+        }
+
+        return builder.toString();
+    }
+
+    public static String fromBinaryToString(String aBinary) {
+        if (aBinary.length() % 8 == 0) {
+            StringBuilder builder = new StringBuilder();
+            int temp;
+            for (int i = 0; i < aBinary.length(); i += 8) {
+                temp = Integer.parseInt(aBinary.substring(i, i + 8), 2);
+                //        System.out.println( "binary " + aBinary.substring(i,i+8) +  " tmep = " + temp + " char "  );
+                builder.append((char) temp);
+            }
+            return builder.toString();
+
+        } else {
+            return "";
+        }
+    }
+
 
     /**
      * permute text based on table
